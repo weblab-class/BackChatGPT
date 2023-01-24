@@ -1,5 +1,6 @@
 <script lang="ts">
     import TerminalOutput from "$lib/components/TerminalOutput.svelte";
+    // @ts-ignore
     import type { TerminalOutputObject } from "$lib/components/TerminalOutput.svelte"
      // The current value of the terminal entry
     let currentTerminalValue: string
