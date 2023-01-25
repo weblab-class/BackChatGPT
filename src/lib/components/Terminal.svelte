@@ -6,6 +6,9 @@
     import TerminalOutput from "$lib/components/TerminalOutput.svelte";
     // @ts-ignore
     import type { TerminalOutputObject } from "$lib/components/TerminalOutput.svelte"
+
+    export let orientation: 'vertical' | 'horizontal'
+
     // The current value of the terminal entry
     let currentTerminalValue: string
 
@@ -18,6 +21,14 @@
 
     function toggleTerminal() {
         open = !open
+    }
+
+    function toggleOrientation() {
+        if (orientation === 'horizontal') {
+            orientation = 'vertical'
+        } else {
+            orientation = 'horizontal'
+        }
     }
 
     // Sets the cursor in the terminal to be active
@@ -126,15 +137,21 @@
     }
 </script>
 
-<div class="w-screen bg-zinc-900 pl-8 pr-8 pt-4 pb-4 text-white font-mono border-t-4 border-t-zinc-400" style="{open ? `height: 400px;` : ``}" on:click={focusTerminal} on:keypress={focusTerminal}>
+<div class="bg-zinc-900 pl-8 pr-8 pt-4 pb-4 text-white font-mono border-t-4 border-t-zinc-400 w-full" style="{open && (orientation === 'horizontal')? `height: 400px;` : ``} {open && (orientation === 'vertical')? `height: 100vh;` : ``}" on:click={focusTerminal} on:keypress={focusTerminal}>
 
     <div class="flex justify-between h-auto" style="padding-bottom: {open ? '1rem' : '0rem'};">
         <p class="underline underline-offset-8">Terminal</p>
 
         {#if open}
-            <button on:click={toggleTerminal}>X</button>
+            <div>
+                <button on:click={toggleOrientation}>&#91;&#93;</button>
+                <button on:click={toggleTerminal}>X</button>
+            </div>
         {:else}
-            <button on:click={toggleTerminal}>^</button>
+            <div>
+                <button on:click={toggleOrientation}>&#91;&#93;</button>
+                <button on:click={toggleTerminal}>^</button>
+            </div>
         {/if}
     </div>
 

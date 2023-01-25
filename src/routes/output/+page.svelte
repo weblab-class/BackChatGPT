@@ -22,8 +22,8 @@
         width: 90%;
         padding-left: 3%;
         margin: auto;
-        background-color: black;
-        color: white;
+        background-color: white;
+        color: black;
         font: mono;
     }
     .wrapper {

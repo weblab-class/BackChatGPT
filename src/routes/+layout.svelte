@@ -10,6 +10,8 @@
         isActive: boolean
     }
 
+    let orientation: 'horizontal' | 'vertical' = 'horizontal'
+
     let routes: Route[] = [
         {name: 'GPT Output [1]', path: '/output', isActive: false},
         {name: 'Progress [2]', path: '/progress', isActive: false},
@@ -30,9 +32,9 @@
     }
 </script>
 
-<div class="flex flex-col h-screen justify-between">
+<div class="flex flex-col h-screen">
 
-    <div class="h-screen">
+    <div class="h-screen" style="width: {orientation === 'horizontal' ? '100vw' : '50%'};">
         <div class="flex text-white font-mono items-center mt-8">
             <h1 class="text-2xl pl-8 pr-8">BackChatGPT</h1>
             {#each routes as route}
@@ -44,9 +46,17 @@
     
     </div>
 
-    <div class="absolute bottom-0 left-0 right-0">
-        <Terminal />
-    </div>
+    {#if orientation === 'horizontal'}
+        <div class="absolute bottom-0 left-0 right-0">
+            <Terminal bind:orientation={orientation}/>
+        </div>
+    {:else}
+        <div class="absolute bottom-0 left-1/2 top-0 w-1/2">
+            <Terminal bind:orientation={orientation}/>
+        </div>
+    {/if}
+
+    
 
 </div>
 
