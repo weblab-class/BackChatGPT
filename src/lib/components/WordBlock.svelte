@@ -5,7 +5,7 @@
 
     $: {
         if (style === 'placeholder') {
-            backgroundColor = '#4D4950'
+            backgroundColor = '#3f3f46'
         } else if (style === 'correct') {
             backgroundColor = '#4F6F84'
         } else if (style === 'wrong') {
