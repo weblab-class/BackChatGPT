@@ -26,6 +26,7 @@
 		"@auth/core": "^0.3.0",
 		"@auth/sveltekit": "^0.2.0",
 		"@types/marked": "^4.0.8",
-		"marked": "^4.2.12"
+		"marked": "^4.2.12",
+		"mongodb": "^4.13.0"
 	}
 }

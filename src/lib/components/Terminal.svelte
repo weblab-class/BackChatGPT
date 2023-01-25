@@ -156,7 +156,7 @@
     </div>
 
     {#if open}
-        <div class='terminal h-full overflow-y-scroll' on:click={focusTerminal} on:keypress={focusTerminal}>
+        <div class='terminal h-full overflow-y-auto' on:click={focusTerminal} on:keypress={focusTerminal}>
 
         {#each terminalOutput as output}
             <TerminalOutput {output} />
