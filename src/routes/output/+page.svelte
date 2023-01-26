@@ -4,20 +4,44 @@
     let ai_output = "This is our current chat gpt output"
     let str_length = ai_output.length+2;
     import '../../app.css';
+    import { prompt } from '$lib/gameStore';
 </script>
 
+{#if $prompt === ''} 
+    <div class="flex flex-col text-white font-mono p-8 h-full items-center pt-32 text-center">
+        <h1 class="text-3xl pb-4">Welcome to BackChatGPT</h1>
 
-<h1 class="text-white font-mono text-lg p-8">Can you backtrack and deduce the ChatGPT prompt?</h1>
+        <p>Test your knowledge of <span>AI</span> by working backwards to discover the <span>prompt</span> that generated a given <span>GPT output</span>.</p>
+        <p>As you play discover <span>hidden features</span> that make decoding the prompt easier.</p>
+        <p>Find all the easter-eggs to fully become an <span>AI Detective</span>.</p>
 
-<div class="wrapper">
-    <div class="typing-demo">
-      {ai_output}
+        <button class="bg-blue-500 shadow-lg shadow-blue-500/40 text-white py-2 px-8 font-semibold text-lg rounded-lg my-8 hover:bg-blue-400 hover:shadow-lg hover:shadow-blue-400/50">New Game</button>
+
+        <p class="w-full lg:w-2/3 text-sm leading-8 opacity-70">
+            <span>Pro Tip: </span>
+            To get you into the developer mindset, BackChatGPT relies on the terminal window below for most input try typing 
+            <kbd class="text-gray-300 bg-zinc-900 italic p-2 pl-4 pr-4 rounded-lg ring-2 ring-zinc-700">run new-game</kbd>
+            instead of clicking the button above.
+        </p>
     </div>
-</div>
+{:else}
+    <h1 class="text-white font-mono text-lg p-8">Can you backtrack and deduce the ChatGPT prompt?</h1>
+
+    <div class="wrapper">
+        <div class="typing-demo">
+        {ai_output}
+        </div>
+    </div>
+{/if}
 
 
-<style>
-    div {
+
+<style lang="postcss">
+    span {
+        color: theme(colors.sky.500);
+    }
+
+    div.wrapper {
 
         width: 90%;
         padding-left: 3%;
