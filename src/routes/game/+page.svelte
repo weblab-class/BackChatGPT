@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
     import '../../app.css';
     import ProgressBar from "$lib/components/ProgressBar.svelte";
     import WordBlock from "$lib/components/WordBlock.svelte";
@@ -14,6 +14,34 @@
     function createGame() {
         $prompt = 'Write a 50 word story about AI.'
     }
+
+    function typingAnimation(node: HTMLElement) {
+        const valid = (
+			node.childNodes.length === 1 &&
+			node.childNodes[0].nodeType === Node.TEXT_NODE
+		);
+
+		if (!valid) {
+			throw new Error(`This transition only works on elements with a single text node child`);
+		}
+
+		const text = node.textContent;
+
+        if (!text) {
+            throw new Error(`No text for transition`)
+        }
+
+        const speed = 1.5
+		const duration = text.length / (speed * 0.01);
+
+		return {
+			duration,
+			tick: (t: number) => {
+				const i = ~~(text.length * t);
+				node.textContent = text.slice(0, i);
+			},
+		};
+	}
 </script>
 
 {#if $prompt === ''} 
@@ -37,8 +65,8 @@
     <h1 class="text-white font-mono text-lg px-8 pt-8 pb-4">Can you backtrack and deduce the ChatGPT prompt from this output?</h1>
 
     <div class="wrapper mx-8 p-4 font-mono bg-zinc-900 text-base text-white rounded-lg ring-2 ring-zinc-700">
-        <div class="typing-demo">
-        {ai_output}
+        <div class="typing-demo" in:typingAnimation>
+        {$prompt}
         </div>
     </div>
 
@@ -78,26 +106,24 @@
         color: theme(colors.sky.500);
     }
 
-    .typing-demo {
-
-        width: 36ch;
-        animation: typing 1s steps(38), blink .4s step-end infinite alternate;
-        white-space: nowrap;
-        overflow: hidden;
+    /* span.caret {
+        color: red;
+        width: 1px;
+        height: 100%;
+        animation: blink .4s step-end infinite alternate;
         border-right: 3px solid;
-        margin:0;
-    }
-
+    } */
+/* 
     @keyframes typing {
 
         from {
             width: 0
         }
-     }
+     } */
 
-    @keyframes blink {
+    /* @keyframes blink {
         50% {
             border-color: transparent
         }
-    }
+    } */
 </style>
