@@ -3,6 +3,7 @@
 
     import { page } from "$app/stores";
     import Terminal from "$lib/components/Terminal.svelte";
+    import Page from "./+page.svelte";
 
     interface Route {
         name: string
@@ -19,9 +20,22 @@
         {name: 'Account [4]', path: '/account', isActive: false},
     ]
 
-    $: {
-        console.log($page)
+    let totalHeight: number
+    let headerHeight: number
+    let terminalHeight: number
+    let contentHeight: number
 
+    $: {
+        let remainingHeight = totalHeight - headerHeight - terminalHeight
+
+        if (remainingHeight > 0) {
+            contentHeight = remainingHeight
+        } else {
+            contentHeight = 0
+        }
+    }
+
+    $: {
         for (const index in routes) {
             if ($page.route.id?.startsWith(routes[index].path)) {
                 routes[index].isActive = true
@@ -32,32 +46,25 @@
     }
 </script>
 
-<div class="flex flex-col h-screen">
+<div bind:clientHeight={totalHeight} class="flex flex-col h-screen w-screen overflow-clip">
 
-    <div class="h-screen" style="width: {orientation === 'horizontal' ? '100vw' : '50%'};">
+    <div bind:clientHeight={headerHeight} class="mb-auto" style="width: {orientation === 'horizontal' ? '100vw' : '50%'};">
         <div class="flex text-white font-mono items-center mt-8">
             <h1 class="text-2xl pl-8 pr-8">BackChatGPT</h1>
             {#each routes as route}
                 <a class="text-md pr-6 hover:opacity-100 hover:underline hover:underline-offset-8" style="opacity: {route.isActive ? 1.0 : 0.4};" href={route.path}>{route.name}</a>
             {/each}
         </div>
-
-    <slot />
-    
     </div>
 
-    {#if orientation === 'horizontal'}
-        <div class="absolute bottom-0 left-0 right-0">
-            <Terminal bind:orientation={orientation}/>
-        </div>
-    {:else}
-        <div class="absolute bottom-0 left-1/2 top-0 w-1/2">
-            <Terminal bind:orientation={orientation}/>
-        </div>
-    {/if}
 
-    
+    <div style="height: {contentHeight}px;" class="overflow-auto">
+        <slot />
+    </div>
 
+    <div bind:clientHeight={terminalHeight} >
+        <Terminal bind:orientation={orientation}/>
+    </div>
 </div>
 
 <style lang="postcss">
