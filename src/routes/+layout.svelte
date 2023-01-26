@@ -14,10 +14,9 @@
     let orientation: 'horizontal' | 'vertical' = 'horizontal'
 
     let routes: Route[] = [
-        {name: 'GPT Output [1]', path: '/output', isActive: false},
-        {name: 'Progress [2]', path: '/progress', isActive: false},
-        {name: 'Prompt Wiki [3]', path: '/wiki', isActive: false},
-        {name: 'Account [4]', path: '/account', isActive: false},
+        {name: 'Game [1]', path: '/game', isActive: false},
+        {name: 'Prompt Wiki [2]', path: '/wiki', isActive: false},
+        {name: 'Account [3]', path: '/account', isActive: false},
     ]
 
     let totalHeight: number
