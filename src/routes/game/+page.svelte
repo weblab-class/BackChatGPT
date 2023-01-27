@@ -2,17 +2,37 @@
     import '../../app.css';
     import ProgressBar from "$lib/components/ProgressBar.svelte";
     import WordBlock from "$lib/components/WordBlock.svelte";
-    import { prompt, correctGuesses, wrongGuesses } from "$lib/gameStore";
+    import { gameData } from "$lib/gameStore";
 
 
     let ai_output = "This is our current chat gpt output"
-    let str_length = ai_output.length+2;
 
-    let promptWords = $prompt.toLowerCase().split(' ')
-    let uniquePromptWords = [... new Set(promptWords)]
+    let promptWords: string[]
+    let uniquePromptWords: string[]
+
+    $: {
+        if ($gameData !== null) {
+            console.log($gameData)
+            console.log($gameData.prompt)
+
+            promptWords = $gameData.prompt.toLowerCase().split(' ')
+            uniquePromptWords = [... new Set(promptWords)]
+        }
+    }
 
     function createGame() {
-        $prompt = 'Write a 50 word story about AI.'
+        $gameData = {
+            prompt: 'Write a 50 word story about AI.',
+            id: 1,
+            gptOutput: 'Some output based off the prompt.',
+            correctGuesses: [],
+            wrongGuesses: [],
+            timeStarted: new Date()
+        }
+    }
+
+    function abandonGame() {
+        $gameData = null
     }
 
     function typingAnimation(node: HTMLElement) {
@@ -44,7 +64,7 @@
 	}
 </script>
 
-{#if $prompt === ''} 
+{#if $gameData === null} 
     <div class="flex flex-col text-white font-mono p-8 h-full items-center pt-32 text-center">
         <h1 class="text-3xl pb-4">Welcome to BackChatGPT</h1>
 
@@ -62,17 +82,22 @@
         </p>
     </div>
 {:else}
-    <h1 class="text-white font-mono text-lg px-8 pt-8 pb-4">Can you backtrack and deduce the ChatGPT prompt from this output?</h1>
+    <div class='flex px-8 pt-8 pb-8 items-center'>
+        <h1 class="text-white font-mono text-lg mr-auto">Can you backtrack and deduce the ChatGPT prompt from this output?</h1>
+
+        <button on:click={abandonGame} class="bg-rose-600 shadow-lg shadow-rose-600/40 text-white font-mono py-2 px-8 text-md rounded-lg hover:bg-rose-500 hover:shadow-lg hover:shadow-rose-500/50">Abandon Game</button>
+    </div>
+    
 
     <div class="wrapper mx-8 p-4 font-mono bg-zinc-900 text-base text-white rounded-lg ring-2 ring-zinc-700">
         <div class="typing-demo" in:typingAnimation>
-        {$prompt}
+        {$gameData.gptOutput}
         </div>
     </div>
 
     <h1 class="text-white font-mono text-lg p-8">Prompt Decoding Progress</h1>
 
-    <ProgressBar currentValue={$correctGuesses.length} endValue={uniquePromptWords.length} />
+    <ProgressBar currentValue={$gameData.correctGuesses.length} endValue={uniquePromptWords.length} />
 
     <p class="text-white font-mono text-base pl-8 pt-8">
         To make a guess type
@@ -82,7 +107,7 @@
 
     <div class="flex flex-wrap gap-4 pt-8 pl-8">
     {#each promptWords as word}
-        {#if $correctGuesses.includes(word)}
+        {#if $gameData.correctGuesses.includes(word)}
             <WordBlock style={'correct'}>{word}</WordBlock>
         {:else}
             <WordBlock style={'placeholder'} />
@@ -93,7 +118,7 @@
     <h2 class="text-white font-mono text-lg pl-8 pt-8">Incorrect Answers</h2>
 
     <div class="flex flex-wrap gap-4 pt-4 pl-8">
-        {#each $wrongGuesses as wrongGuess}
+        {#each $gameData.wrongGuesses as wrongGuess}
             <WordBlock style={'wrong'}>{wrongGuess}</WordBlock>
         {/each}
     </div>

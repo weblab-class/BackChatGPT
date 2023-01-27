@@ -3,6 +3,7 @@
 	"version": "0.0.1",
 	"private": true,
 	"scripts": {
+		"install-packages": "npm install; pip install -r requirements.txt",
 		"dev": "vite dev",
 		"build": "vite build",
 		"preview": "vite preview",
@@ -27,6 +28,7 @@
 		"@auth/sveltekit": "^0.2.0",
 		"@types/marked": "^4.0.8",
 		"marked": "^4.2.12",
-		"mongodb": "^4.13.0"
+		"mongodb": "^4.13.0",
+		"python-shell": "^3.0.1"
 	}
 }

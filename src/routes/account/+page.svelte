@@ -13,17 +13,22 @@
           class="avatar"
         />
       {/if}
+
       <p>
       <span class="signedInText">
         <small>Signed in as</small>
         <strong>{$page.data.session.user?.name ?? "User"}</strong>
       </span>
       </p>
+
       <button on:click={() => signOut()} class="button text-red-400">Sign out</button>
+
     {:else}
+
       <p>
         <span class="notSignedInText">You are not signed in</span>
       </p>
       <button on:click={() => signIn("google")} class='text-sky-300'>Sign In with Google</button>
+      
     {/if}
   </p>

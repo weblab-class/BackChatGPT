@@ -1,6 +1,31 @@
 import { writable } from "svelte/store";
 import type { Writable } from "svelte/store";
 
-export const prompt: Writable<string> = writable('')
-export const correctGuesses: Writable<string[]> = writable([])
-export const wrongGuesses: Writable<string[]> = writable([])
+interface GameData {
+    id: number,
+    prompt: string,
+    gptOutput: string,
+    correctGuesses: string[],
+    wrongGuesses: string[],
+    timeStarted: Date,
+    timeCompleted?: Date,
+}
+
+
+
+let storedGameData: string | null = typeof window !== 'undefined' ? localStorage.getItem('gameData') : null
+let initialGameData: GameData | null
+if (storedGameData !== null) {
+    initialGameData = JSON.parse(storedGameData)
+} else {
+    initialGameData = storedGameData
+}
+
+// If gameData is null then there is not an active game
+export const gameData: Writable<GameData | null> = writable(initialGameData)
+
+gameData.subscribe((value) => {
+    if (typeof window !== 'undefined') {
+        localStorage.gameData = JSON.stringify(value)
+    }
+})

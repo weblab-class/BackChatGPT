@@ -3,15 +3,13 @@
 
     import { page } from "$app/stores";
     import Terminal from "$lib/components/Terminal.svelte";
-    import Page from "./+page.svelte";
+    import { userInterfaceData } from "$lib/interfaceStore";
 
     interface Route {
         name: string
         path: string
         isActive: boolean
     }
-
-    let orientation: 'horizontal' | 'vertical' = 'horizontal'
 
     let routes: Route[] = [
         {name: 'Game [1]', path: '/game', isActive: false},
@@ -47,7 +45,7 @@
 
 <div bind:clientHeight={totalHeight} class="flex flex-col h-screen w-screen overflow-clip">
 
-    <div bind:clientHeight={headerHeight} class="mb-auto" style="width: {orientation === 'horizontal' ? '100vw' : '50%'};">
+    <div bind:clientHeight={headerHeight} class="mb-auto" style="width: {$userInterfaceData.terminalOrientation === 'horizontal' ? '100vw' : '50%'};">
         <div class="flex text-white font-mono items-center mt-8">
             <h1 class="text-2xl pl-8 pr-8">BackChatGPT</h1>
             {#each routes as route}
@@ -62,7 +60,7 @@
     </div>
 
     <div bind:clientHeight={terminalHeight} >
-        <Terminal bind:orientation={orientation}/>
+        <Terminal />
     </div>
 </div>
 

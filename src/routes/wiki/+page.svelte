@@ -8,8 +8,10 @@
 
 
     <!-- Wiki Entry -->
-    <div class='col-span-5 h-full bg-zinc-700 rounded-tl-[48px] overflow-y-auto'>
-
+    <div class='col-span-6 h-full bg-zinc-700 rounded-tl-[48px] overflow-y-auto'>
+       <div>item 1</div>
+       <div>description 1</div>
     </div>
+
 </div>
 

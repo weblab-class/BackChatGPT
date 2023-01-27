@@ -1,36 +1,37 @@
 <script lang="ts">
     import { page } from "$app/stores";
     import { signIn, signOut } from "@auth/sveltekit/client"
-    import { prompt, correctGuesses, wrongGuesses } from "$lib/gameStore";
+    import { gameData } from "$lib/gameStore";
+    import { userInterfaceData } from "$lib/interfaceStore";
     import TerminalOutput from "$lib/components/TerminalOutput.svelte";
     // @ts-ignore
     import type { TerminalOutputObject } from "$lib/components/TerminalOutput.svelte"
     import { beforeUpdate, afterUpdate } from "svelte";
 
-    export let orientation: 'vertical' | 'horizontal'
+    // export let orientation: 'vertical' | 'horizontal'
 
     // The current value of the terminal entry
     let currentTerminalValue: string
 
     // Previous Entries
-    let terminalOutput: TerminalOutputObject[] = []
+    // let terminalOutput: TerminalOutputObject[] = []
 
     let terminalWindow: HTMLElement
     let terminalInput: HTMLElement
 
-    let open: true | false = true
+    // let open: true | false = true
 
     let autoscroll: boolean = false
 
     function toggleTerminal() {
-        open = !open
+        $userInterfaceData.terminalIsOpen = !$userInterfaceData.terminalIsOpen
     }
 
     function toggleOrientation() {
-        if (orientation === 'horizontal') {
-            orientation = 'vertical'
+        if ($userInterfaceData.terminalOrientation === 'horizontal') {
+            $userInterfaceData.terminalOrientation = 'vertical'
         } else {
-            orientation = 'horizontal'
+            $userInterfaceData.terminalOrientation = 'horizontal'
         }
     }
 
@@ -46,10 +47,10 @@
 
             // Update Terminal Output with new message
             let [userMessage, systemResponse] = parseCommand(currentTerminalValue)
-            terminalOutput = [...terminalOutput, userMessage]
+            $userInterfaceData.terminalOutput = [...$userInterfaceData.terminalOutput, userMessage]
 
             if (systemResponse) {
-                terminalOutput = [...terminalOutput, systemResponse]
+                $userInterfaceData.terminalOutput = [...$userInterfaceData.terminalOutput, systemResponse]
             }
             
             // Reset the terminal command entry
@@ -80,7 +81,22 @@
 
             terminalEntry = "guess"
 
-            let promptWords = $prompt.toLowerCase().split(' ')
+            if ($gameData === null) {
+                let userMessage: TerminalOutputObject = {
+                    user: username(),
+                    message: terminalEntry
+                }
+
+                let systemResponse: TerminalOutputObject = {
+                    message: `[#ef4444(Error:)] \"Cannot use guess without an active game\" \n Try starting a game by running: \n \t [#38bdf8(run new-game)] \n`
+                }
+
+                return [userMessage, systemResponse]
+            }
+
+            console.log($gameData.prompt)
+
+            let promptWords = $gameData.prompt.toLowerCase().split(' ')
             let uniquePromptWords = [... new Set(promptWords)]
 
             for (const index in enteredGuesses) {
@@ -93,17 +109,17 @@
                         // The word guessed is in the prompt --> Correct
                         terminalEntry = terminalEntry += ` [#4ade80(${guess})]`
 
-                        if ($correctGuesses.includes(guessLower) === false) {
+                        if ($gameData.correctGuesses.includes(guessLower) === false) {
                             // Add word to guessed list if not already in the list
-                            $correctGuesses = [...$correctGuesses, guessLower]
+                            $gameData.correctGuesses = [...$gameData.correctGuesses, guessLower]
                         }
                     } else {
                         // The word guessed is NOT in the prompt --> Wrong
                         terminalEntry = terminalEntry += ` [#ef4444(${guess})]`
 
-                        if ($wrongGuesses.includes(guessLower) === false) {
+                        if ($gameData.wrongGuesses.includes(guessLower) === false) {
                              // Add word to guessed list if not already in the list
-                            $wrongGuesses = [...$wrongGuesses, guessLower]
+                            $gameData.wrongGuesses = [...$gameData.wrongGuesses, guessLower]
                         }
                     }
                 }
@@ -160,12 +176,12 @@
     })
 </script>
 
-<div  bind:this={terminalWindow} class="bg-zinc-900  pb-4 text-white font-mono border-t-4 border-t-zinc-400 w-full overflow-y-auto" style="{open && (orientation === 'horizontal')? `height: 400px;` : ``} {open && (orientation === 'vertical')? `height: 100vh;` : ``}" on:click={focusTerminal} on:keypress={focusTerminal}>
+<div  bind:this={terminalWindow} class="bg-zinc-900  pb-4 text-white font-mono border-t-4 border-t-zinc-400 w-full overflow-y-auto" style="{$userInterfaceData.terminalIsOpen && ($userInterfaceData.terminalOrientation === 'horizontal')? `height: 400px;` : ``} {$userInterfaceData.terminalIsOpen && ($userInterfaceData.terminalOrientation === 'vertical')? `height: 100vh;` : ``}" on:click={focusTerminal} on:keypress={focusTerminal}>
 
-    <div class="sticky top-0 flex justify-between h-auto bg-zinc-900/30 px-8 pt-4 backdrop-blur-lg" style="padding-bottom: {open ? '1rem' : '0rem'};">
+    <div class="sticky top-0 flex justify-between h-auto bg-zinc-900/30 px-8 pt-4 backdrop-blur-lg" style="padding-bottom: {$userInterfaceData.terminalIsOpen ? '1rem' : '0rem'};">
         <p class="underline underline-offset-8">Terminal</p>
 
-        {#if open}
+        {#if $userInterfaceData.terminalIsOpen}
             <div>
                 <!-- <button on:click={toggleOrientation}>&#91;&#93;</button> -->
                 <button on:click={toggleTerminal}>X</button>
@@ -178,10 +194,10 @@
         {/if}
     </div>
 
-    {#if open}
+    {#if $userInterfaceData.terminalIsOpen}
         <div class='terminal px-8' on:click={focusTerminal} on:keypress={focusTerminal}>
 
-        {#each terminalOutput as output}
+        {#each $userInterfaceData.terminalOutput as output}
             <TerminalOutput {output} />
         {/each}
         
