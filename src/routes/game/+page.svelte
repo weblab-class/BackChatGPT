@@ -3,6 +3,7 @@
     import ProgressBar from "$lib/components/ProgressBar.svelte";
     import WordBlock from "$lib/components/WordBlock.svelte";
     import { gameData } from "$lib/gameStore";
+    import GameCompleted from '$lib/components/GameCompleted.svelte';
 
 
     let ai_output = "This is our current chat gpt output"
@@ -12,9 +13,6 @@
 
     $: {
         if ($gameData !== null) {
-            console.log($gameData)
-            console.log($gameData.prompt)
-
             promptWords = $gameData.prompt.toLowerCase().split(' ')
             uniquePromptWords = [... new Set(promptWords)]
         }

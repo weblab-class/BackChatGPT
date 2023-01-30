@@ -13,6 +13,7 @@
 	"devDependencies": {
 		"@sveltejs/adapter-auto": "^1.0.0",
 		"@sveltejs/kit": "^1.0.0",
+		"@types/sentencer": "^0.2.0",
 		"autoprefixer": "^10.4.13",
 		"postcss": "^8.4.21",
 		"svelte": "^3.54.0",
@@ -29,6 +30,7 @@
 		"@types/marked": "^4.0.8",
 		"marked": "^4.2.12",
 		"mongodb": "^4.13.0",
-		"python-shell": "^3.0.1"
+		"python-shell": "^3.0.1",
+		"sentencer": "^0.2.1"
 	}
 }

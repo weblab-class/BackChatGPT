@@ -4,6 +4,8 @@
     import { page } from "$app/stores";
     import Terminal from "$lib/components/Terminal.svelte";
     import { userInterfaceData } from "$lib/interfaceStore";
+    import { gameData } from "$lib/gameStore";
+    import GameCompleted from "$lib/components/GameCompleted.svelte";
 
     interface Route {
         name: string
@@ -21,6 +23,16 @@
     let headerHeight: number
     let terminalHeight: number
     let contentHeight: number
+
+    let promptWords: string[]
+    let uniquePromptWords: string[]
+
+    $: {
+        if ($gameData !== null) {
+            promptWords = $gameData.prompt.toLowerCase().split(' ')
+            uniquePromptWords = [... new Set(promptWords)]
+        }
+    }
 
     $: {
         let remainingHeight = totalHeight - headerHeight - terminalHeight
@@ -62,6 +74,12 @@
     <div bind:clientHeight={terminalHeight} >
         <Terminal />
     </div>
+
+    <!-- {#if $gameData !== null }
+    {#if uniquePromptWords.length === $gameData.correctGuesses.length}
+        <GameCompleted />
+    {/if}
+    {/if} -->
 </div>
 
 <style lang="postcss">
