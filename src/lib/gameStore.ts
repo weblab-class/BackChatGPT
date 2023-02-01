@@ -32,7 +32,7 @@ if (storedGameData !== null) {
 // If gameData is null then there is not an active game
 export const gameData: Writable<GameData | 'loading' | null> = writable(initialGameData)
 export const prompt: Readable<Prompt | null> = derived(gameData, $gameData => {
-    if ($gameData !== 'loading' && $gameData !== null) {
+    if ($gameData !== 'loading' && $gameData !== null && $gameData.prompt !== undefined) {
         const regex = /([A-Za-z0-9]+)/g
         const fullPrompt = $gameData.prompt.split(regex)
         const promptWords = fullPrompt.filter((value) => {
