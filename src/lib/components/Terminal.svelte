@@ -285,7 +285,7 @@
                 message: terminalEntry
             }
 
-            goto('/wiki/introduction')
+            goto('/wiki/using-terminal')
 
             return [userMessage]
         } else {

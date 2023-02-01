@@ -8,6 +8,6 @@ node_modules
 !.env.example
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
-/routes/api/upload-db
-/routes/test_prompt_generation
-/routes/test-markdown
+/src/routes/api/upload-db
+/src/routes/test_prompt_generation
+/src/routes/test-markdown
