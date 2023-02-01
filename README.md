@@ -13,3 +13,5 @@ The goal of BackChatGPT is to deduce what prompt created a GPT Output. We've cre
 - MongoDB
 - TailwindCSS
 - Typescript
+
+Note for BackChatGPT team: There's a minor bug/typo in the "run Abandon-Game" command in the Documentation: https://back-chat-gpt.vercel.app/wiki/using-terminal (the help command is being run instead)
