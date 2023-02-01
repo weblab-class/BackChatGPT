@@ -11,7 +11,7 @@
     
     export let output: TerminalOutputObject
 
-    console.log(output)
+    // console.log(output)
     let fragments = spliceMessage(output.message)
 
     export type { TerminalOutputObject }

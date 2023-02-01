@@ -1,30 +1,13 @@
 <script lang="ts">
-    import { marked } from 'marked'
-    // import * as fs from 'fs'
+    import type { PageData } from './$types';
+    import { marked } from 'marked';
 
-    let markdownHTML: string
-    const url = 'https://raw.githubusercontent.com/sveltejs/kit/master/README.md';
-
-    // fs.readFile('IntroWiki.md', 'utf-8', (err, data) => {
-    //     markdownHTML = marked(data)
-    //     console.log(markdownHTML)
-    // })
+    export let data: PageData
 </script>
 
-<div class='grid grid-cols-6 pl-8 pt-8 h-full'>
-    <!-- Navigation -->
-    <div class='col-span-1 h-full overflow-y-auto'>
-        <h1 class="text-white font-mono text-lg">Prompt Wiki</h1>
-    </div>
 
-
-    <!-- Wiki Entry -->
-    <div class='wiki-container col-span-5 h-full bg-zinc-700 rounded-tl-[48px] overflow-y-auto p-8 font-mono text-white'>
-        {#await fetch(url).then(r => r.text()) then text }
-            {@html marked(text)}
-        {/await}
-    </div>
-
+<div class='wiki-container w-full h-full'>
+    {@html marked(data.wiki.body)}
 </div>
 
 <style lang="postcss">
@@ -56,6 +39,14 @@
         font-size: theme(fontSize.lg);
         margin-top: theme(margin.4);
         margin-bottom: theme(margin.4);
+    }
+
+    :global(.wiki-container pre) {
+        @apply text-gray-300 bg-zinc-900 italic p-2 pl-4 pr-4 rounded-lg ring-2 ring-zinc-500
+    }
+
+    :global(.wiki-container code) {
+        @apply text-gray-300 bg-zinc-900 italic p-1 pl-2 pr-2 rounded-lg
     }
 
     :global(.wiki-container ul) {

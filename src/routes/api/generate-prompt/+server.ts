@@ -206,9 +206,9 @@ export const GET: RequestHandler = (async () => {
 
     let prompt = Sentencer.make(templateString)
 
-    let gptOutput = null //await getOpenAiOutput(prompt)
+    let gptOutput = await getOpenAiOutput(prompt)
 
-    //gptOutput = gptOutput.replaceAll(prompt, '')
+    gptOutput = gptOutput.replaceAll(prompt, '')
 
     let responseJSON = JSON.stringify({
         prompt: prompt,

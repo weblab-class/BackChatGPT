@@ -4,8 +4,9 @@
     import { page } from "$app/stores";
     import Terminal from "$lib/components/Terminal.svelte";
     import { userInterfaceData } from "$lib/interfaceStore";
-    import { gameData } from "$lib/gameStore";
+    import { gameData, prompt } from "$lib/gameStore";
     import GameCompleted from "$lib/components/GameCompleted.svelte";
+    import { userData, type UserData } from "$lib/userStore";
 
     interface Route {
         name: string
@@ -24,16 +25,6 @@
     let terminalHeight: number
     let contentHeight: number
 
-    let promptWords: string[]
-    let uniquePromptWords: string[]
-
-    $: {
-        if ($gameData !== null) {
-            promptWords = $gameData.prompt.toLowerCase().split(' ')
-            uniquePromptWords = [... new Set(promptWords)]
-        }
-    }
-
     $: {
         let remainingHeight = totalHeight - headerHeight - terminalHeight
 
@@ -51,6 +42,38 @@
             } else {
                 routes[index].isActive = false
             }
+        }
+    }
+
+    async function retrieveUserData(userId: string): Promise<UserData | null> {
+        if (typeof window !== 'undefined') {
+            let data = await fetch(`/api/user/${userId}`)
+            let json = await data.json()
+
+            if (json) {
+                console.log("Returned JSON", json)
+                return {
+                    user: {
+                        name: json.user.name,
+                        email: json.user.email,
+                        id: json.user.id
+                    },
+                    gamesPlayed: json.gamesPlayed,
+                    completedGames: json.completedGames,
+                    loginMethod: json.loginMethod,
+                    fastestCompletion: json.fastestCompletion
+                }
+            }
+        }
+
+        return null
+    }
+
+    $: {
+        if (($page.data.session?.user?.id) && (typeof window !== 'undefined')) {
+            retrieveUserData($page.data.session?.user?.id).then((value) => {
+                $userData = value
+            })
         }
     }
 </script>
@@ -75,11 +98,11 @@
         <Terminal />
     </div>
 
-    <!-- {#if $gameData !== null }
-    {#if uniquePromptWords.length === $gameData.correctGuesses.length}
+    {#if $gameData !== null && $gameData !== 'loading' && $prompt !== null}
+    {#if ($prompt.uniqueWords.length === $gameData.correctGuesses.length) && ($gameData.timeCompleted !== null) && ($gameData.timeCompleted !== undefined)}
         <GameCompleted />
     {/if}
-    {/if} -->
+    {/if}
 </div>
 
 <style lang="postcss">

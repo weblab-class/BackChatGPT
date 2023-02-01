@@ -1,12 +1,14 @@
 <script lang="ts">
     import { page } from "$app/stores";
     import { signIn, signOut } from "@auth/sveltekit/client"
-    import { gameData } from "$lib/gameStore";
+    import { gameData, prompt } from "$lib/gameStore";
     import { userInterfaceData } from "$lib/interfaceStore";
     import TerminalOutput from "$lib/components/TerminalOutput.svelte";
     // @ts-ignore
     import type { TerminalOutputObject } from "$lib/components/TerminalOutput.svelte"
     import { beforeUpdate, afterUpdate } from "svelte";
+    import { createGame } from "$lib/components/createGame";
+    import { userData } from "$lib/userStore";
 
     // export let orientation: 'vertical' | 'horizontal'
 
@@ -58,14 +60,12 @@
         }
     }
 
-    let username = (): string => {
-        if ($page.data.session) {
-            if ($page.data.session.user?.name) {
-                let username: string = $page.data.session.user?.name.toLowerCase()
-                username = username.replaceAll(" ", "-")
+    function username(name: string | null | undefined): string {
+        if (name !== undefined && name !== null) {
+            let username: string = name.toLowerCase()
+            username = username.replaceAll(" ", "-")
 
-                return username
-            }
+            return username
         }
 
         return "guest-user-1234"
@@ -81,9 +81,9 @@
 
             terminalEntry = "guess"
 
-            if ($gameData === null) {
+            if ($gameData === null || $gameData === 'loading' || $prompt === null) {
                 let userMessage: TerminalOutputObject = {
-                    user: username(),
+                    user: username($userData?.user.name),
                     message: terminalEntry
                 }
 
@@ -94,18 +94,13 @@
                 return [userMessage, systemResponse]
             }
 
-            console.log($gameData.prompt)
-
-            let promptWords = $gameData.prompt.toLowerCase().split(' ')
-            let uniquePromptWords = [... new Set(promptWords)]
-
             for (const index in enteredGuesses) {
                 // Skip the first index since that is the command: 'guess'
                 if (index != '0') {
                     let guess = enteredGuesses[index]
                     let guessLower = guess.toLowerCase()
 
-                    if (uniquePromptWords.includes(guessLower)) {
+                    if ($prompt.uniqueWords.includes(guessLower)) {
                         // The word guessed is in the prompt --> Correct
                         terminalEntry = terminalEntry += ` [#4ade80(${guess})]`
 
@@ -126,7 +121,7 @@
             }
 
             return [{
-                user: username(),
+                user: username($userData?.user.name),
                 message: terminalEntry
             }]
 
@@ -134,9 +129,39 @@
             signIn('google')
         } else if (terminalEntry === 'logout') {
             signOut()
+        } else if (terminalEntry === 'run new-game') {
+            if ($gameData === null) {
+                createGame()
+            } else {
+                let userMessage: TerminalOutputObject = {
+                    user: username($userData?.user.name),
+                    message: terminalEntry
+                }
+
+                let responseMessage: TerminalOutputObject = {
+                    message: `[#ef4444(Error:)] \"Cannot use run new-game when there is an active game.\" \n Try ending the game by running: \n \t [#38bdf8(run abandon-game)] \n`
+                }
+
+                return [userMessage, responseMessage]
+            }
+        } else if (terminalEntry === 'run abandon-game') {
+            if ($gameData !== null) {
+                $gameData = null
+            } else {
+                let userMessage: TerminalOutputObject = {
+                    user: username($userData?.user.name),
+                    message: terminalEntry
+                }
+
+                let responseMessage: TerminalOutputObject = {
+                    message: `[#ef4444(Error:)] \"Cannot abandon without an active game\" \n Try starting a game by running: \n \t [#38bdf8(run new-game)] \n`
+                }
+
+                return [userMessage, responseMessage]
+            }
         } else if (terminalEntry === 'help') {
             let userMessage: TerminalOutputObject = {
-                user: username(),
+                user: username($userData?.user.name),
                 message: terminalEntry
             }
 
@@ -147,7 +172,7 @@
             return [userMessage, responseMessage]
         } else {
             let userMessage: TerminalOutputObject = {
-                user: username(),
+                user: username($userData?.user.name),
                 message: terminalEntry
             }
 
@@ -159,7 +184,7 @@
         }
 
         return [{
-            user: username(),
+            user: username($userData?.user.name),
             message: terminalEntry
         }]
     }
@@ -176,7 +201,7 @@
     })
 </script>
 
-<div  bind:this={terminalWindow} class="bg-zinc-900  pb-4 text-white font-mono border-t-4 border-t-zinc-400 w-full overflow-y-auto" style="{$userInterfaceData.terminalIsOpen && ($userInterfaceData.terminalOrientation === 'horizontal')? `height: 400px;` : ``} {$userInterfaceData.terminalIsOpen && ($userInterfaceData.terminalOrientation === 'vertical')? `height: 100vh;` : ``}" on:click={focusTerminal} on:keypress={focusTerminal}>
+<div  bind:this={terminalWindow} class="bg-zinc-900  pb-4 text-white font-mono border-t-4 border-t-zinc-400 w-full overflow-y-auto" style="{$userInterfaceData.terminalIsOpen && ($userInterfaceData.terminalOrientation === 'horizontal')? `height: 400px;` : ``} {$userInterfaceData.terminalIsOpen && ($userInterfaceData.terminalOrientation === 'vertical')? `height: 100vh;` : ``}">
 
     <div class="sticky top-0 flex justify-between h-auto bg-zinc-900/30 px-8 pt-4 backdrop-blur-lg" style="padding-bottom: {$userInterfaceData.terminalIsOpen ? '1rem' : '0rem'};">
         <p class="underline underline-offset-8">Terminal</p>
@@ -202,8 +227,8 @@
         {/each}
         
         <div class='flex terminal-active-line'>
-            <p>
-            <span>&lt;{username()}&gt; %</span>
+            <p class="whitespace-pre-wrap">
+            <span>&lt;{username($userData?.user.name)}&gt; %</span>
             <span contenteditable='true' class='input' id='input' bind:this={terminalInput} bind:textContent={currentTerminalValue} on:keypress={inputKeypress} />
             </p>
         </div>

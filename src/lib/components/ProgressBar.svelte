@@ -2,48 +2,41 @@
     import { onMount } from "svelte";
 
 
-    export let currentValue: number
-    export let endValue: number
+    export let progress: number // Number representing the progress from 0-100
+    export let totalWidth: number
 
-    let totalWidth: number
     let segmentWidth = 8
+    let gapWidth = 4
 
     let totalSegments: number
     let filledSegments: number
     let remainingSegments: number
 
-    function calculateProgress(currentValue: number) {
-        console.log(totalWidth)
+    function calculateProgress(progress: number) {
         totalSegments = Math.round(totalWidth / (segmentWidth + 4))
 
-        let percentComplete = currentValue / endValue
-
-        filledSegments = Math.round(percentComplete * totalSegments)
+        filledSegments = Math.round((progress / 100) * totalSegments)
         remainingSegments = totalSegments - filledSegments
-
-        console.log(filledSegments)
     }
 
     onMount(() => {
-        calculateProgress(currentValue)
+        calculateProgress(progress)
     })
 
     $: {
-        if (isFinite(totalWidth)) {
-            calculateProgress(currentValue)
+        if (totalWidth) {
+            calculateProgress(progress)
         }
     }
 
 
 </script>
 
-<div class="pl-8 pr-8">
-    <div bind:clientWidth={totalWidth} class="flex gap-1 w-full h-7">
-        {#each Array(filledSegments) as _}
-            <div class="bg-sky-300 h-full opacity-80" style="width: {segmentWidth}px;"/>
-        {/each}
-        {#each Array(remainingSegments) as _}
-            <div class="bg-sky-300 h-full opacity-20" style="width: {segmentWidth}px;"/>
-        {/each}
-    </div>
+<div class="mx-2 flex gap-1 w-full h-7 relative">
+    {#each Array(filledSegments) as _, i}
+        <div class="bg-sky-300 h-full opacity-80 absolute" style="width: {segmentWidth}px; left: {(segmentWidth + gapWidth) * i}px"/>
+    {/each}
+    {#each Array(remainingSegments) as _, i}
+        <div class="bg-sky-300 h-full opacity-20 absolute" style="width: {segmentWidth}px; left: {(segmentWidth + gapWidth) * (filledSegments + i)}px"/>
+    {/each}
 </div>
