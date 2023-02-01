@@ -1,6 +1,6 @@
 <script lang="ts">
-    import { signIn, signOut } from "@auth/sveltekit/client"
-    import { page } from "$app/stores"
+    import { signIn } from "@auth/sveltekit/client"
+    import { signOutUser } from "$lib/components/signOutUser";
     import { userData } from "$lib/userStore";
     import { formatTimeElapsed } from "$lib/components/formatTimeElapsed";
 
@@ -16,22 +16,13 @@
     }
 
     async function signInUser() {
-        console.log("Sign in User")
-
-        let res = await signIn('google')
-
-        console.log("Response: ", res)
-
-        if (res) {
-          let json = await res.json()
-          console.log(JSON.stringify(json))
-        }
+        await signIn('google')
     }
 </script>
 
 
 
-<p class="text-white font-mono text-base pl-8">
+<p class="text-white font-mono text-base pl-8 pb-12">
     {#if $userData}
       <div class="flex flex-col justify-center items-center mt-16">
         <p class="text-3xl text-center my-2">
@@ -53,7 +44,7 @@
           </div>
         </div>
 
-        <button on:click={() => signOut()} class="bg-rose-600 shadow-lg shadow-rose-600/40 text-white font-mono py-2 px-8 text-md rounded-lg hover:bg-rose-500 hover:shadow-lg hover:shadow-rose-500/50">Log Out</button>
+        <button on:click={signOutUser} class="bg-rose-600 shadow-lg shadow-rose-600/40 text-white font-mono py-2 px-8 text-md rounded-lg hover:bg-rose-500 hover:shadow-lg hover:shadow-rose-500/50">Log Out</button>
     </div>
 
     {:else}

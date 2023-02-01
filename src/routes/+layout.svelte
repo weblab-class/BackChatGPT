@@ -51,7 +51,7 @@
             let json = await data.json()
 
             if (json) {
-                console.log("Returned JSON", json)
+                // console.log("Returned JSON", json)
                 return {
                     user: {
                         name: json.user.name,

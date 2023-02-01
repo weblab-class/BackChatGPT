@@ -18,7 +18,7 @@ export const userData: Writable<UserData | null> = writable(null)
 
 userData.subscribe(async (value) => {
     if (typeof window !== 'undefined') {
-        console.log("New User Data Value", value)
+        // console.log("New User Data Value", value)
 
         if (value !== null && value !== undefined && value.user.id) {
             const bodyJSON = JSON.stringify({

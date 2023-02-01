@@ -4,7 +4,7 @@
 
     export let data: LayoutServerData
 
-    console.log(data)
+    // console.log(data)
     
     let markdownHTML: string
     const url = 'https://raw.githubusercontent.com/sveltejs/kit/master/README.md';

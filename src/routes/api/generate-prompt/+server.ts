@@ -44,7 +44,7 @@ async function getOpenAiOutput(prompt: string): Promise<string> {
 
         // @ts-ignore
         let output = `${prompt}${json.choices[0].text}`;
-        console.log(output);
+        // console.log(output);
 
         return Promise.resolve(output)
     } catch (err) {

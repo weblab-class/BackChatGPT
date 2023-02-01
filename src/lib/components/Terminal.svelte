@@ -1,6 +1,6 @@
 <script lang="ts">
-    import { page } from "$app/stores";
-    import { signIn, signOut } from "@auth/sveltekit/client"
+    import { signIn } from "@auth/sveltekit/client"
+    import { signOutUser } from "$lib/components/signOutUser";
     import { gameData, prompt } from "$lib/gameStore";
     import { userInterfaceData } from "$lib/interfaceStore";
     import TerminalOutput from "$lib/components/TerminalOutput.svelte";
@@ -9,6 +9,8 @@
     import { beforeUpdate, afterUpdate } from "svelte";
     import { createGame } from "$lib/components/createGame";
     import { userData } from "$lib/userStore";
+    import { goto } from "$app/navigation";
+    import nounList from '$lib/wordLists/NounList.txt?raw'
 
     // export let orientation: 'vertical' | 'horizontal'
 
@@ -24,6 +26,8 @@
     // let open: true | false = true
 
     let autoscroll: boolean = false
+
+    const nounListArray = nounList.split('\n')
 
     function toggleTerminal() {
         $userInterfaceData.terminalIsOpen = !$userInterfaceData.terminalIsOpen
@@ -100,7 +104,25 @@
                     let guess = enteredGuesses[index]
                     let guessLower = guess.toLowerCase()
 
-                    if ($prompt.uniqueWords.includes(guessLower)) {
+                    // Check if guess [any_number]
+                    if (guess === '[any_number]') {
+                        let numbers = $prompt.uniqueWords.filter((value) => {
+                            const regex = /([0-9]+)/g
+                            return regex.test(value)
+                        })
+
+                        if (numbers.length > 0) {
+                            terminalEntry = terminalEntry += ` [#4ade80([any_number])]`
+                        } else {
+                            terminalEntry = terminalEntry += ` [#ef4444([any_number])]`
+                        }
+
+                        for (let i = 0; i < numbers.length; i++) {
+                            if ($gameData.correctGuesses.includes(numbers[i]) === false) {
+                                $gameData.correctGuesses = [...$gameData.correctGuesses, numbers[i]]
+                            }
+                        }
+                    } else if ($prompt.uniqueWords.includes(guessLower)) {
                         // The word guessed is in the prompt --> Correct
                         terminalEntry = terminalEntry += ` [#4ade80(${guess})]`
 
@@ -128,7 +150,7 @@
         } else if (terminalEntry === 'login') {
             signIn('google')
         } else if (terminalEntry === 'logout') {
-            signOut()
+            signOutUser()
         } else if (terminalEntry === 'run new-game') {
             if ($gameData === null) {
                 createGame()
@@ -159,17 +181,113 @@
 
                 return [userMessage, responseMessage]
             }
+        } else if (terminalEntry === 'run output_length') {
+            if ($gameData !== null && $gameData !== 'loading') {
+
+                const regex = /([A-Za-z0-9]+)/g
+                const output = $gameData.gptOutput.split(regex)
+                const outputWords = output.filter((value) => {
+                    return regex.test(value) 
+                })
+
+                let output_length = outputWords.length
+
+                let userMessage: TerminalOutputObject = {
+                    user: username($userData?.user.name),
+                    message: terminalEntry
+                }
+
+                let responseMessage: TerminalOutputObject = {
+                    message: `The message is [#38bdf8(${output_length} words)] \n`
+                }
+
+                return [userMessage, responseMessage]
+            } else {
+                let userMessage: TerminalOutputObject = {
+                    user: username($userData?.user.name),
+                    message: terminalEntry
+                }
+
+                let responseMessage: TerminalOutputObject = {
+                    message: `[#ef4444(Error:)] \"Cannot run command without an active game\" \n Try starting a game by running: \n \t [#38bdf8(run new-game)] \n`
+                }
+
+                return [userMessage, responseMessage]
+            }
+        } else if (terminalEntry === 'run possible_words') {
+            if ($gameData !== null && $gameData !== 'loading' && $prompt !== null) {
+                // Must have at least 75% complete to use command
+                if (($gameData.correctGuesses.length / $prompt.uniqueWords.length) < 0.75) {
+                    let userMessage: TerminalOutputObject = {
+                    user: username($userData?.user.name),
+                    message: terminalEntry
+                    }
+
+                    let responseMessage: TerminalOutputObject = {
+                        message: `[#ef4444(Error:)] \"Must have at least 75% progress to run command.\" \n Try making some guesses using: \n \t [#38bdf8(guess word)] \n`
+                    }
+
+                    return [userMessage, responseMessage]
+                }
+
+                const missingWords = $prompt.uniqueWords.filter((value) => {
+                    // @ts-ignore
+                    const hasBeenGuessed: boolean = $gameData.correctGuesses.includes(value)
+
+                    return !hasBeenGuessed
+                })
+
+                let interval = Math.floor(Math.random() * 10) + 3
+
+                for (let i = 0; i < interval; i++) {
+                    let randomIndex = Math.floor(Math.random() * nounListArray.length)
+
+                    missingWords.push(nounListArray[randomIndex])
+                }
+
+                missingWords.sort()
+
+                let missingWordsString = ''
+
+                for (let i = 0; i < missingWords.length; i++) {
+                    if (i !== missingWords.length - 1) {
+                        missingWordsString += `[#38bdf8(${missingWords[i]})], `
+                    } else {
+                        missingWordsString += `[#38bdf8(${missingWords[i]})]`
+                    }
+                }
+
+                let userMessage: TerminalOutputObject = {
+                    user: username($userData?.user.name),
+                    message: terminalEntry
+                }
+
+                let responseMessage: TerminalOutputObject = {
+                    message: `Some words to try are ${missingWordsString} \n`
+                }
+
+                return [userMessage, responseMessage]
+            } else {
+                let userMessage: TerminalOutputObject = {
+                    user: username($userData?.user.name),
+                    message: terminalEntry
+                }
+
+                let responseMessage: TerminalOutputObject = {
+                    message: `[#ef4444(Error:)] \"Cannot run command without an active game\" \n Try starting a game by running: \n \t [#38bdf8(run new-game)] \n`
+                }
+
+                return [userMessage, responseMessage]
+            }
         } else if (terminalEntry === 'help') {
             let userMessage: TerminalOutputObject = {
                 user: username($userData?.user.name),
                 message: terminalEntry
             }
 
-            let responseMessage: TerminalOutputObject = {
-                message: `Some help message with list of commands here \n`
-            }
+            goto('/wiki/introduction')
 
-            return [userMessage, responseMessage]
+            return [userMessage]
         } else {
             let userMessage: TerminalOutputObject = {
                 user: username($userData?.user.name),

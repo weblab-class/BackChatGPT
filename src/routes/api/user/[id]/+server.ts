@@ -6,7 +6,7 @@ import { ObjectId } from 'mongodb';
 
 export const GET: RequestHandler = (async ({ params }) => {
     let query = { _id: new ObjectId(params.id) }
-    console.log("Getting")
+    // console.log("Getting")
     let user = await db.collection('users').findOne(query)
 
     if (user) {
@@ -32,7 +32,7 @@ export const POST: RequestHandler = (async ({ params, request }) => {
     const requestBody = await request.json()
 
     let query = { _id: new ObjectId(params.id) }
-    console.log("Replacing")
+    // console.log("Replacing")
     await db.collection('users').replaceOne(query, requestBody)
 
     let responseJSON = JSON.stringify('completed')

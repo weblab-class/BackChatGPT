@@ -14,7 +14,7 @@
         
         const response = await fetch('/api/upload-db', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: bodyJSON })
 
-        console.log(response)
+        // console.log(response)
     }
 </script>
 

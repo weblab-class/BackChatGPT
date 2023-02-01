@@ -11,7 +11,7 @@ export async function createGame() {
     const currentUserData = get(userData)
 
     if (currentUserData !== null) {
-        console.log(currentUserData)
+        // console.log(currentUserData)
 
         if (currentUserData.gamesPlayed === undefined || currentUserData.gamesPlayed === null) {
             currentUserData.gamesPlayed = [data.prompt]

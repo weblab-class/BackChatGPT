@@ -11,10 +11,10 @@ export function formatTimeElapsed(msElapsed: number): string {
     let outputString: string = ''
 
     if (hours > 0) {
-        outputString += hours + ':'
+        outputString += ('00' + hours).slice(-2) + ':'
     }
 
-    outputString += minutes + ':' + seconds
+    outputString += ('00' + minutes).slice(-2) + ':' + ('00' + seconds).slice(-2)
 
 
     return outputString
