@@ -11,7 +11,7 @@ interface UserInterfaceData {
 
 let storedInterfaceData: string | null = typeof window !== 'undefined' ? localStorage.getItem('userInterfaceData') : null
 let initialInterfaceData: UserInterfaceData
-if (storedInterfaceData !== null) {
+if (storedInterfaceData !== null && storedInterfaceData !== undefined) {
     initialInterfaceData = JSON.parse(storedInterfaceData)
 } else {
     initialInterfaceData = {

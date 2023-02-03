@@ -50,7 +50,7 @@ export const prompt: Readable<Prompt | null> = derived(gameData, $gameData => {
 })
 
 gameData.subscribe((value) => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== 'undefined' && value !== 'loading') {
         localStorage.gameData = JSON.stringify(value)
     }
 })
