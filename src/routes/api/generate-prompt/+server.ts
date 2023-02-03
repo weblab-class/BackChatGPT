@@ -5,6 +5,7 @@ import nounList from '$lib/wordLists/NounList.txt?raw'
 import foodList from '$lib/wordLists/FoodList.txt?raw'
 import occupationList from '$lib/wordLists/occupationList.txt?raw'
 import famousPeople from '$lib/wordLists/famousPeople.txt?raw'
+import { error } from '@sveltejs/kit';
 
 function randomElement<T>(array: T[]): T {
     let randomIndex = Math.floor(Math.random() * array.length)
@@ -40,6 +41,11 @@ async function getOpenAiOutput(prompt: string): Promise<string> {
     try {
         let response = await fetch(url, { method: 'POST', headers: headers, body: JSON.stringify(params),})
         
+        if (response.status >= 400) {
+            throw error(response.status, response.statusText)
+        }
+
+        console.log(response)
         let json = await response.json()
 
         // @ts-ignore
@@ -48,9 +54,7 @@ async function getOpenAiOutput(prompt: string): Promise<string> {
 
         return Promise.resolve(output)
     } catch (err) {
-        console.log(err);
-
-        return Promise.reject(err)
+        throw err
     }
 }
 
@@ -206,14 +210,18 @@ export const GET: RequestHandler = (async () => {
 
     let prompt = Sentencer.make(templateString)
 
-    let gptOutput = await getOpenAiOutput(prompt)
+    try {
+        let gptOutput = await getOpenAiOutput(prompt)
 
-    gptOutput = gptOutput.replaceAll(prompt, '')
+        gptOutput = gptOutput.replaceAll(prompt, '')
 
-    let responseJSON = JSON.stringify({
-        prompt: prompt,
-        gptOutput: gptOutput
-    })
+        let responseJSON = JSON.stringify({
+            prompt: prompt,
+            gptOutput: gptOutput
+        })
 
-    return new Response(responseJSON)
+        return new Response(responseJSON)
+    } catch(err) {
+        throw err
+    }
 })
